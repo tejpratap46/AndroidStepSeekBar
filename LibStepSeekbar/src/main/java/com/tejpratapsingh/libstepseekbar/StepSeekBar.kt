@@ -9,8 +9,8 @@ import java.lang.ref.WeakReference
 
 
 class StepSeekBar : AppCompatSeekBar {
-    var stepValue = 1
-    private var mSeekBarSelectableRange: Range<Int> = Range(min, max)
+    var stepSize = 1
+    var mSeekBarSelectableRange: Range<Int> = Range(min, max)
     private var mSeekBarChangeListenerRef: WeakReference<OnSeekBarChangeListener>? = null
     private val mLocalSeekBarChangeListener: OnSeekBarChangeListener =
         object : OnSeekBarChangeListener {
@@ -24,12 +24,12 @@ class StepSeekBar : AppCompatSeekBar {
                     * Do not notify upper layer about selection,
                     * as we already notified when lower/upper limit was reached
                     */
-                    val stepProgress: Int = progress / stepValue * stepValue
+                    val stepProgress: Int = progress / stepSize * stepSize
                     if (progress < lower) {
-                        setProgress(lower / stepValue * stepValue)
+                        setProgress(lower / stepSize * stepSize)
                         return
                     } else if (progress > upper) {
-                        setProgress(upper / stepValue * stepValue)
+                        setProgress(upper / stepSize * stepSize)
                         return
                     }
                     if (progress != stepProgress) {
@@ -79,7 +79,7 @@ class StepSeekBar : AppCompatSeekBar {
     }
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-        init()
+        init(attrs)
     }
 
     constructor(
@@ -87,22 +87,29 @@ class StepSeekBar : AppCompatSeekBar {
         attrs: AttributeSet?,
         defStyleAttr: Int
     ) : super(context, attrs, defStyleAttr) {
-        init()
+        init(attrs, defStyleAttr)
     }
 
-    private fun init() {
+    private fun init(attrs: AttributeSet? = null, defStyleAttr: Int = 0) {
+        context.theme.obtainStyledAttributes(
+            attrs,
+            R.styleable.StepSeekBar,
+            0,
+            defStyleAttr
+        ).apply {
+            stepSize = getFloat(R.styleable.StepSeekBar_android_stepSize, 1F).toInt()
+            recycle()
+        }
+
         super.setOnSeekBarChangeListener(mLocalSeekBarChangeListener)
     }
 
-    fun setSelectableRange(from: Int, to: Int, updateSeekBar: Boolean) {
+    fun setSelectableRange(from: Int, to: Int, updateSeekBar: Boolean = true) {
         mSeekBarSelectableRange = Range(from, to)
         if (!mSeekBarSelectableRange.contains(progress) && updateSeekBar) {
             progress = from
         }
     }
-
-    val seekBarSelectableRange: Range<Int>
-        get() = mSeekBarSelectableRange
 
     override fun setEnabled(enabled: Boolean) {
         super.setEnabled(enabled)
