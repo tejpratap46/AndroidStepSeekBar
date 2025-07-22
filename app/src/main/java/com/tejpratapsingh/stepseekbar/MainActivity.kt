@@ -3,7 +3,6 @@ package com.tejpratapsingh.stepseekbar
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.util.Range
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import com.tejpratapsingh.libstepseekbar.StepSeekBar
